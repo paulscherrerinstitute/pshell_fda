@@ -1,0 +1,3 @@
+ch.psi.fda.cdump.CdumpEDescriptorProvider
+ch.psi.fda.fdaq.FdaqEDescriptorProvider
+ch.psi.fda.aq.XScanDescriptorProvider

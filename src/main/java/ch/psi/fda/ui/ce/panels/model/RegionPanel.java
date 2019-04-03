@@ -1,0 +1,242 @@
+/*
+ *  Copyright (C) 2011 Paul Scherrer Institute
+ * 
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ * 
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * RegionPanel.java
+ *
+ * Created on Jan 18, 2011, 11:15:34 AM
+ */
+
+package ch.psi.fda.ui.ce.panels.model;
+
+import ch.psi.fda.ProcessorFDA;
+import ch.psi.fda.ui.ce.panels.CollapsibleListContainer;
+import ch.psi.fda.ui.ce.panels.ComponentMetadata;
+import ch.psi.fda.ui.ce.panels.FieldUtilities;
+import ch.psi.fda.ui.ce.panels.PanelSupport;
+import ch.psi.fda.model.v1.Action;
+import ch.psi.fda.model.v1.Function;
+import ch.psi.fda.model.v1.Region;
+import ch.psi.fda.ui.ce.panels.DocumentAdapter;
+import ch.psi.fda.ui.ce.panels.EditableComponent;
+import ch.psi.fda.ui.ce.panels.ObjectProvider;
+import java.awt.Component;
+import java.util.HashMap;
+import javax.swing.JFormattedTextField;
+import javax.swing.event.DocumentEvent;
+
+/**
+ *
+ * @author ebner
+ */
+public class RegionPanel extends javax.swing.JPanel implements ObjectProvider<Region>, EditableComponent {
+
+    private boolean modified = false;
+    private PanelSupport panelSupport;
+    private Region region;
+
+    public RegionPanel() {
+        this(new Region());
+    }
+
+    /** Creates new form RegionPanel */
+    public RegionPanel(final Region region) {
+        this.region = region;
+
+        initComponents();
+        
+        ProcessorFDA.setIcon(jButton1, getClass().getResource("/ch/psi/fda/ui/ce/icons/plus.png"));        
+
+        HashMap<Component, ComponentMetadata> managedFields = new HashMap<Component,ComponentMetadata>();
+        managedFields.put(jFormattedTextFieldStart, new ComponentMetadata(true));
+        managedFields.put(jFormattedTextFieldEnd, new ComponentMetadata(true));
+        managedFields.put(jFormattedTextFieldStepSize, new ComponentMetadata(true));
+        managedFields.put(collapsibleListContainer1, new ComponentMetadata(false));
+        managedFields.put(collapsibleListContainerFunction, new ComponentMetadata(false));
+
+        this.panelSupport = new PanelSupport();
+        this.panelSupport.analyze(managedFields);
+
+        // Update view
+        jFormattedTextFieldStart.setText(region.getStart()+"");
+        jFormattedTextFieldEnd.setText(region.getEnd()+"");
+        jFormattedTextFieldStepSize.setText(region.getStepSize()+"");
+
+        // Establish bindings
+        jFormattedTextFieldStart.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            public void valueChange(DocumentEvent de) {
+                modified = true;
+                try{
+                    region.setStart(new Double(jFormattedTextFieldStart.getText()));
+                }
+                catch(NumberFormatException e){
+                    region.setStart(0);
+                }
+            }
+        });
+        jFormattedTextFieldEnd.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            public void valueChange(DocumentEvent de) {
+                modified = true;
+                try{
+                    region.setEnd(new Double(jFormattedTextFieldEnd.getText()));
+                }
+                catch(NumberFormatException e){
+                    region.setEnd(0);
+                }
+            }
+        });
+        jFormattedTextFieldStepSize.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            public void valueChange(DocumentEvent de) {
+                modified = true;
+                try{
+                    region.setStepSize(new Double(jFormattedTextFieldStepSize.getText()));
+                }
+                catch(NumberFormatException e){
+                    region.setStepSize(0);
+                }
+            }
+        });
+
+
+        this.panelSupport.manage(this, managedFields, jButton1);
+
+        collapsibleListContainer1.setHeader("Pre Actions");
+        collapsibleListContainer1.setName("Pre Actions");
+
+        collapsibleListContainerFunction.setHeader("Function");
+        collapsibleListContainerFunction.setName("Function");
+        collapsibleListContainerFunction.setCollapsed(true);
+
+//        collapsibleListContainer1.setCollapsed(true);
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        collapsibleListContainer1 = new CollapsibleListContainer<Action>(new ActionListItemProvider(region.getPreAction()));
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jFormattedTextFieldStart = new JFormattedTextField(FieldUtilities.getDecimalFormat());
+        jLabel2 = new javax.swing.JLabel();
+        jFormattedTextFieldEnd = new JFormattedTextField(FieldUtilities.getDecimalFormat());
+        jLabel3 = new javax.swing.JLabel();
+        jFormattedTextFieldStepSize = new JFormattedTextField(FieldUtilities.getDecimalFormat());
+        jButton1 = new javax.swing.JButton();
+        collapsibleListContainerFunction = new CollapsibleListContainer<Function>(new FunctionListItemProvider(region));
+
+        setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 255)));
+
+        collapsibleListContainer1.setName("Pre-Actions"); // NOI18N
+
+        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 5, 0));
+
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        jLabel1.setLabelFor(jFormattedTextFieldStart);
+        jLabel1.setText("Start:");
+        jPanel1.add(jLabel1);
+
+        jFormattedTextFieldStart.setToolTipText("Start");
+        jFormattedTextFieldStart.setName("Start"); // NOI18N
+        jFormattedTextFieldStart.setPreferredSize(new java.awt.Dimension(60, 28));
+        jPanel1.add(jFormattedTextFieldStart);
+
+        jLabel2.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        jLabel2.setLabelFor(jFormattedTextFieldEnd);
+        jLabel2.setText("End:\n");
+        jPanel1.add(jLabel2);
+
+        jFormattedTextFieldEnd.setToolTipText("End");
+        jFormattedTextFieldEnd.setName("End"); // NOI18N
+        jFormattedTextFieldEnd.setPreferredSize(new java.awt.Dimension(60, 28));
+        jPanel1.add(jFormattedTextFieldEnd);
+
+        jLabel3.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        jLabel3.setLabelFor(jFormattedTextFieldStepSize);
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("ch/psi/fda/ui/ce/panels/model/Bundle"); // NOI18N
+        jLabel3.setText(bundle.getString("RegionPanel.jLabel3.text")); // NOI18N
+        jPanel1.add(jLabel3);
+
+        jFormattedTextFieldStepSize.setToolTipText("Step size");
+        jFormattedTextFieldStepSize.setName("Step Size"); // NOI18N
+        jFormattedTextFieldStepSize.setPreferredSize(new java.awt.Dimension(60, 28));
+        jPanel1.add(jFormattedTextFieldStepSize);
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ch/psi/fda/ui/ce/icons/plus.png"))); // NOI18N
+        jButton1.setBorderPainted(false);
+        jButton1.setContentAreaFilled(false);
+        jPanel1.add(jButton1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+            .addComponent(collapsibleListContainer1, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+            .addComponent(collapsibleListContainerFunction, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(collapsibleListContainer1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(collapsibleListContainerFunction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private ch.psi.fda.ui.ce.panels.CollapsibleListContainer collapsibleListContainer1;
+    private ch.psi.fda.ui.ce.panels.CollapsibleListContainer collapsibleListContainerFunction;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JFormattedTextField jFormattedTextFieldEnd;
+    private javax.swing.JFormattedTextField jFormattedTextFieldStart;
+    private javax.swing.JFormattedTextField jFormattedTextFieldStepSize;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    // End of variables declaration//GEN-END:variables
+
+    @Override
+    public Region getObject() {
+        return region;
+    }
+
+    @Override
+    public boolean modified() {
+        boolean m = modified;
+        modified = false;
+        return m;
+    }
+
+    @Override
+    public void clearModified() {
+        modified = false;
+    }
+
+}
