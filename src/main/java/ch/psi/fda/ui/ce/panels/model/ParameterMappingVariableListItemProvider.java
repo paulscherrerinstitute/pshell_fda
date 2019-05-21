@@ -34,7 +34,7 @@ public class ParameterMappingVariableListItemProvider implements ListItemProvide
 
     private List<ParameterMapping> list;
 
-    private final String[] names = new String[]{"Variable Mapping"};
+    private final String[] names = new String[]{"Variable Mapping", "Channel Mapping"};
 
     public ParameterMappingVariableListItemProvider(List<ParameterMapping> list){
         this.list = list;
@@ -52,6 +52,11 @@ public class ParameterMappingVariableListItemProvider implements ListItemProvide
             list.add(pm);
             return(getItem(pm));
         }
+        if(key.equals(names[1])){
+            ChannelParameterMapping cpm = new ChannelParameterMapping();
+            list.add(cpm);
+            return(getItem(cpm));
+        }    
         return null;
     }
 

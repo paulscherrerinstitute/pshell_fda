@@ -987,7 +987,7 @@ public class Acquisition {
                                     map.put(cpm.getVariable(),createChannel(Integer.class, cpm.getChannel()));                                    
                                 }
                                 else if(cpm.getType().equals("Double")){
-                                    map.put(cpm.getVariable(),createChannel(Integer.class, cpm.getChannel())); 
+                                    map.put(cpm.getVariable(),createChannel(Double.class, cpm.getChannel())); 
                                 }
                                 else{
                                         logger.warning("Channel type ["+cpm.getType()+"] is not supported for mapping");
