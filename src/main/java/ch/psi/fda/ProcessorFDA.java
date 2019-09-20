@@ -510,10 +510,10 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
             acquisition.execute();
         } catch (InterruptedException ex) {
             throw ex;
-        } catch (Exception ex) {
-            Logger.getLogger(ProcessorFDA.class.getName()).log(Level.WARNING, null, ex);
-            ex.printStackTrace();
-            throw ex;
+        } catch (Throwable t) {
+            Logger.getLogger(ProcessorFDA.class.getName()).log(Level.WARNING, null, t);
+            t.printStackTrace();
+            throw t;
         } finally {
             ModelUtil.getInstance().setConfigurationPanel(null);
             Logger.getLogger(ProcessorFDA.class.getName()).log(Level.FINER, "Destroy acquisition");
