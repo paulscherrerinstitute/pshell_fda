@@ -19,8 +19,8 @@
 
 package ch.psi.fda.aq;
 
-import ch.psi.fda.LayoutFDA;
 import ch.psi.pshell.core.Context;
+import ch.psi.pshell.data.LayoutFDA;
 import ch.psi.pshell.ui.App;
 import java.util.logging.Logger;
 

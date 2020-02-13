@@ -64,7 +64,33 @@ public final class DataBrowser extends MonitoredPanel {
 
         JPopupMenu filePopupMenu = new JPopupMenu();
 
-        JMenuItem menuBrowse = new JMenuItem("Browser folder");
+        JMenuItem menuPlot = new JMenuItem("Plot data");
+        menuPlot.addActionListener((ActionEvent e) -> {
+            try {
+                File file = (File) treeFolder.getLastSelectedPathComponent();
+                if ((file != null) && (file.exists()) && file.isFile()) {
+                    plotFile(file);
+                }
+            } catch (Exception ex) {
+                SwingUtils.showException(DataBrowser.this, ex);
+            }
+        });
+        filePopupMenu.add(menuPlot);
+
+        JMenuItem menuOpen = new JMenuItem("Open file");
+        menuOpen.addActionListener((ActionEvent e) -> {
+            try {
+                File file = (File) treeFolder.getLastSelectedPathComponent();
+                if ((file != null) && (file.exists()) && file.isFile()) {
+                    openFile(file);
+                }
+            } catch (Exception ex) {
+                SwingUtils.showException(DataBrowser.this, ex);
+            }
+        });
+        filePopupMenu.add(menuOpen);
+
+        JMenuItem menuBrowse = new JMenuItem("Browse folder");
         menuBrowse.addActionListener((ActionEvent e) -> {
             try {
                 File file = (File) treeFolder.getLastSelectedPathComponent();
@@ -120,14 +146,11 @@ public final class DataBrowser extends MonitoredPanel {
         });
         filePopupMenu.add(menuRefresh);
 
-        //treeFolder.addTreeSelectionListener((TreeSelectionEvent event) -> {
-        //    onFileSelection();
-        //});
         treeFolder.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if ((!e.isPopupTrigger()) && (e.getClickCount() == 2)) {
-                    onFileSelection();
+                    onFileDoubleClick((File) treeFolder.getLastSelectedPathComponent());
                 } else {
                     checkPopup(e);
                 }
@@ -142,10 +165,13 @@ public final class DataBrowser extends MonitoredPanel {
                 try {
                     if (e.isPopupTrigger()) {
                         TreePath path = treeFolder.getPathForLocation(e.getX(), e.getY());
-                        treeFolder.setSelectionPath(path);                        
+                        treeFolder.setSelectionPath(path);
                         File file = (File) treeFolder.getLastSelectedPathComponent();
                         if ((file != null) && (file.exists())) {
-                            menuFileOrder.setVisible(path.getPathCount()==1);
+                            menuFileOrder.setVisible(path.getPathCount() == 1);
+                            menuPlot.setVisible(file.isFile() && IO.getExtension(file).equalsIgnoreCase("txt"));
+                            menuOpen.setVisible(file.isFile());
+                            menuRefresh.setVisible(!file.isFile());
                             filePopupMenu.show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
@@ -170,24 +196,18 @@ public final class DataBrowser extends MonitoredPanel {
     FileSystemModel treeFolderModel;
     String baseFolder;
 
-    void onFileSelection() {
-        File file = (File) treeFolder.getLastSelectedPathComponent();
+    void onFileDoubleClick(File file) {
         if ((file != null) && (file.exists() && (file.isFile()))) {
             try {
                 String filename = file.getCanonicalPath();
                 switch (IO.getExtension(file)) {
                     case "log":
-                        Editor editor = App.getInstance().getMainFrame().openTextFile(filename);
-                        editor.setReadOnly(true);
-                        break;
                     case "xml":
-                        App.getInstance().getMainFrame().openScriptOrProcessor(filename);
+                        openFile(file);
                         break;
                     case "txt":
-                        Editor ed = App.getInstance().getMainFrame().openTextFile(filename);
-                        ed.setReadOnly(true);
-                        ProcessorFDA processor = new ProcessorFDA();
-                        processor.plotDataFile(file);
+                        plotFile(file);
+                        break;
                 }
 
             } catch (Exception ex) {
@@ -195,6 +215,32 @@ public final class DataBrowser extends MonitoredPanel {
             }
         }
     }
+
+    void openFile(File file) throws IOException, InstantiationException, IllegalAccessException {
+        if ((file != null) && (file.exists() && (file.isFile()))) {
+            String filename = file.getCanonicalPath();
+            switch (IO.getExtension(file)) {
+                case "log":
+                    Editor editor = App.getInstance().getMainFrame().openTextFile(filename);
+                    editor.setReadOnly(true);
+                    break;
+                case "xml":
+                    App.getInstance().getMainFrame().openScriptOrProcessor(filename);
+                    break;
+                case "txt":
+                    Editor ed = App.getInstance().getMainFrame().openTextFile(filename);
+                    ed.setReadOnly(true);
+            }
+        }
+    }
+    
+    void plotFile(File file) throws IOException, InstantiationException, IllegalAccessException {
+        if ((file != null) && (file.exists() && (file.isFile())) && (IO.getExtension(file).equalsIgnoreCase("txt"))) {
+            ProcessorFDA processor = new ProcessorFDA();
+            processor.plotDataFile(file);
+            
+        }
+    }    
 
     @Override
     protected void onShow() {
@@ -429,7 +475,7 @@ public final class DataBrowser extends MonitoredPanel {
                     }
                 }
             }
-            List<File>  ret = new ArrayList<>();
+            List<File> ret = new ArrayList<>();
             if (f.isDirectory()) {
                 File[] subfolders = IO.listSubFolders(f);
                 switch (fileOrder) {
@@ -440,8 +486,8 @@ public final class DataBrowser extends MonitoredPanel {
                         IO.orderByName(subfolders);
                         break;
                 }
-               for (File subfolder : subfolders){
-                    if (!subfolder.isHidden()){
+                for (File subfolder : subfolders) {
+                    if (!subfolder.isHidden()) {
                         ret.add(subfolder);
                     }
                 }
@@ -456,8 +502,8 @@ public final class DataBrowser extends MonitoredPanel {
                         IO.orderByName(files);
                         break;
                 }
-               for (File file : files){
-                    if (!file.isHidden() && file.isFile()){
+                for (File file : files) {
+                    if (!file.isHidden() && file.isFile()) {
                         ret.add(file);
                     }
                 }

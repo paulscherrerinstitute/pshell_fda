@@ -382,23 +382,23 @@ public class CrlogicLoopStream implements ActionLoop {
 				}
 				
 				
-				// Start crlogic logic
-				logger.info("Start CRLOGIC");
-				template.getStatus().setValue(TemplateCrlogic.Status.INITIALIZE.toString());
-				try{
-					template.getStatus().waitForValue(TemplateCrlogic.Status.ACTIVE.toString(), startStopTimeout);
-				}
-				catch(ChannelException | ExecutionException | TimeoutException e){
-					logger.info( "Failed to start CRLOGIC. Logic in status: "+template.getStatus().getValue() );
-					if(template.getStatus().getValue().equals(TemplateCrlogic.Status.FAULT.toString())){
-						logger.info("Error message: "+template.getMessage().getValue());
-					}
-					// Recover to inactive
-					template.getStatus().setValue(TemplateCrlogic.Status.INACTIVE.toString());
-					// TODO Improve error handling
-					throw new RuntimeException("Failed to start CRLOGIC. Logic in status: "+template.getStatus().getValue()+ " Error message: "+template.getMessage().getValue(), e);
-					
-				}
+// Start crlogic logic
+logger.info("Start CRLOGIC");
+template.getStatus().setValue(TemplateCrlogic.Status.INITIALIZE.toString());
+try{
+        template.getStatus().waitForValue(TemplateCrlogic.Status.ACTIVE.toString(), startStopTimeout);
+}
+catch(ChannelException | ExecutionException | TimeoutException e){
+        logger.info( "Failed to start CRLOGIC. Logic in status: "+template.getStatus().getValue() );
+        if(template.getStatus().getValue().equals(TemplateCrlogic.Status.FAULT.toString())){
+                logger.info("Error message: "+template.getMessage().getValue());
+        }
+        // Recover to inactive
+        template.getStatus().setValue(TemplateCrlogic.Status.INACTIVE.toString());
+        // TODO Improve error handling
+        throw new RuntimeException("Failed to start CRLOGIC. Logic in status: "+template.getStatus().getValue()+ " Error message: "+template.getMessage().getValue(), e);
+
+}
 
 				// Connect ZMQ stream
 				connect(ioc);

@@ -39,6 +39,11 @@ import ch.psi.utils.swing.ExtensionFileFilter;
 import ch.psi.utils.swing.SwingUtils.OptionType;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -58,6 +63,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 /**
@@ -68,29 +74,71 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
         
         JMenuBar menu = App.getInstance().getMainFrame().getMenu();
         JMenu menuView =  (JMenu) SwingUtils.getComponentByName(menu, "menuView");
-        JMenuItem menuDataBrowser = new JMenuItem("FDA Data Browser");
+        JMenuItem menuDataBrowser = new JMenuItem("FDA Browser");
+        menuDataBrowser.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_MASK));
         menuView.insert(menuDataBrowser, menuView.getMenuComponentCount() -1);
         menuView.insertSeparator(menuView.getMenuComponentCount() -1);
         menuDataBrowser.addActionListener((e)-> {
             showDataBrowser();
         });
-        
-        
+        SwingUtils.adjustMacMenuBarAccelerator(menuDataBrowser);          
+        try {
+            if ("true".equalsIgnoreCase(Context.getInstance().getSetting("FdaBrowser"))){
+                showDataBrowser();
+            }
+        } catch (IOException ex) {            
+        }
     }
     
-    static void showDataBrowser(){
-        JTabbedPane tabDoc = App.getInstance().getMainFrame().getDocumentsTab();
-        for (int i = 0; i < tabDoc.getTabCount(); i++) {
-            Component c = tabDoc.getComponentAt(i);
+    static JTabbedPane getDataBrowserTabbedPane(){
+        return App.getInstance().getMainFrame().getLeftTab().isVisible() ? 
+                App.getInstance().getMainFrame().getLeftTab() :
+                App.getInstance().getMainFrame().getDocumentsTab();
+    }
+    
+    static boolean isDataBrowserVisible(){
+        JTabbedPane tab = getDataBrowserTabbedPane();                
+        for (int i = 0; i < tab.getTabCount(); i++) {
+            Component c = tab.getComponentAt(i);
             if (c instanceof DataBrowser) {
-                tabDoc.setSelectedComponent(c);
+                tab.setSelectedComponent(c);
+                return true;
+            }
+        }     
+        return false;
+    }
+    
+    static int dataBrowserInstances=0;
+    static void showDataBrowser(){
+        JTabbedPane tab = getDataBrowserTabbedPane();                
+        for (int i = 0; i < tab.getTabCount(); i++) {
+            Component c = tab.getComponentAt(i);
+            if (c instanceof DataBrowser) {
+                tab.setSelectedComponent(c);
                 return;
             }
         }      
         DataBrowser panel = new DataBrowser();
         panel.setCached(App.getInstance().getMainFrame().getPreferences().cachedDataPanel);
         panel.initialize(null);        
-        App.getInstance().getMainFrame().openComponent("FDA Data", panel);        
+        App.getInstance().getMainFrame().openComponent("FDA Browser", panel, tab);       
+        dataBrowserInstances = Math.max(dataBrowserInstances+1, 1);
+        panel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                dataBrowserInstances--;
+                if (dataBrowserInstances<=0){
+                    try {
+                        Context.getInstance().setSetting("FdaBrowser", false);
+                    } catch (IOException ex) {            
+                    }                    
+                }
+            }
+        });
+        try {
+            Context.getInstance().setSetting("FdaBrowser", true);
+        } catch (IOException ex) {            
+        }
     }
     
     private ConfigurationPanel panelConfig;
