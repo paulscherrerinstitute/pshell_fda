@@ -81,19 +81,18 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
         menuView.insertSeparator(menuView.getMenuComponentCount() -1);
         menuDataBrowser.setSelected(false);
         menuDataBrowser.addActionListener((e)-> {
-            //On Java 12 (mac) generates 2 events (with and without modifier)
-            if ((e.getModifiers() & (ActionEvent.META_MASK | ActionEvent.CTRL_MASK)) == 0){
-                if (isDataBrowserVisible()){
-                    closeDataBrowser();                
-                } else {
-                    showDataBrowser();
-                }
+            if (isDataBrowserVisible()){
+                closeDataBrowser();                
             } else {
+                showDataBrowser();
             }
         });
         menuView.addChangeListener((e)->{
             menuDataBrowser.setSelected(isDataBrowserVisible());
         });
+        
+        //TODO: On Mac, Java >10,  meta+B generates 2 events (with and without modifier)
+        //https://bugs.openjdk.java.net/browse/JDK-8208712
         SwingUtils.adjustMacMenuBarAccelerator(menuDataBrowser);          
         try {
             if ("true".equalsIgnoreCase(Context.getInstance().getSetting("FdaBrowser"))){
@@ -126,10 +125,12 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
         DataBrowser panel = new DataBrowser();
         panel.setCached(App.getInstance().getMainFrame().getPreferences().cachedDataPanel);
         panel.initialize(null);        
-        App.getInstance().getMainFrame().openComponent(FDA_BROWSER_TITLE, panel, tab);       
-        try {
-            Context.getInstance().setSetting("FdaBrowser", true);
-        } catch (IOException ex) {            
+        App.getInstance().getMainFrame().openComponent(FDA_BROWSER_TITLE, panel, tab);   
+        if (!App.isLocalMode()) {
+            try {
+                Context.getInstance().setSetting("FdaBrowser", true);
+            } catch (IOException ex) {            
+            }
         }
         setDataBrowserFixed();
     }
@@ -154,10 +155,12 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
     }
 
     public static void closeDataBrowser(){
-        try {
-            Context.getInstance().setSetting("FdaBrowser", false);
-        } catch (IOException ex) {            
-        }          
+        if (!App.isLocalMode()) {
+            try {
+                Context.getInstance().setSetting("FdaBrowser", false);
+            } catch (IOException ex) {            
+            }      
+        }
         for (int i = 0; i< App.getInstance().getMainFrame().getLeftTab().getTabCount(); i++){
             Component t=App.getInstance().getMainFrame().getLeftTab().getTabComponentAt(i);
             if (isDataBrowser(t)){
