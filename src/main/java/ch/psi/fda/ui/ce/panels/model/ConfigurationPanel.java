@@ -110,25 +110,21 @@ public class ConfigurationPanel extends javax.swing.JPanel implements ObjectProv
         jFormattedTextFieldNumber.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             public void valueChange(DocumentEvent de) {
-                if (jFormattedTextFieldNumber.getValue().equals((long)configuration.getNumberOfExecution())){
+                String str = jFormattedTextFieldNumber.getText().trim();
+                int value;
+                try{
+                    value = new Integer(str);
+                    configuration.setNumberOfExecution(new Integer(value));
+                }
+                catch(NumberFormatException e){
+                    value = 1;
+                }
+                    
+                if (value == configuration.getNumberOfExecution()){
                     return;
                 }
-                modified = true;
-                //Logger.getLogger(ConfigurationPanel.class.getName()).log(Level.INFO, "MODIFIED #");
-                String value = jFormattedTextFieldNumber.getText();
-                if(value != null){
-                    try{
-                        configuration.setNumberOfExecution(new Integer(value));
-                    }
-                    catch(NumberFormatException e){
-                        configuration.setNumberOfExecution(1);
-//                        jFormattedTextFieldNumber.setText("1");
-                    }
-                }
-                else{
-                    configuration.setNumberOfExecution(1);
-//                    jFormattedTextFieldNumber.setText("1");
-                }
+                modified = true;                
+                configuration.setNumberOfExecution(new Integer(value));
             }
         });
         jCheckBoxFailOnSensorError.addChangeListener(new ChangeListener() {
