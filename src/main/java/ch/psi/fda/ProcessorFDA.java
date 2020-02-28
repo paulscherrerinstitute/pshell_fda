@@ -34,6 +34,7 @@ import java.io.IOException;
 import ch.psi.utils.swing.SwingUtils;
 import java.awt.Component;
 import ch.psi.pshell.ui.Processor;
+import ch.psi.pshell.ui.View;
 import ch.psi.utils.State;
 import ch.psi.utils.swing.ExtensionFileFilter;
 import ch.psi.utils.swing.SwingUtils.CloseButtonTabComponent;
@@ -72,67 +73,74 @@ import javax.swing.SwingUtilities;
 public final class ProcessorFDA extends MonitoredPanel implements Processor {
    public static final String FDA_BROWSER_TITLE = "FDA Browser";
     static {
-        
-        JMenuBar menu = App.getInstance().getMainFrame().getMenu();
-        JMenu menuView =  (JMenu) SwingUtils.getComponentByName(menu, "menuView");
-        JCheckBoxMenuItem menuDataBrowser = new JCheckBoxMenuItem(FDA_BROWSER_TITLE);
-        menuDataBrowser.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_MASK));
-        menuView.insert(menuDataBrowser, menuView.getMenuComponentCount() -1);
-        menuView.insertSeparator(menuView.getMenuComponentCount() -1);
-        menuDataBrowser.setSelected(false);
-        menuDataBrowser.addActionListener((e)-> {
-            if (isDataBrowserVisible()){
-                closeDataBrowser();                
-            } else {
-                showDataBrowser();
+        View view = App.getInstance().getMainFrame();
+        if (view!=null){
+            JMenuBar menu = App.getInstance().getMainFrame().getMenu();
+            JMenu menuView =  (JMenu) SwingUtils.getComponentByName(menu, "menuView");
+            JCheckBoxMenuItem menuDataBrowser = new JCheckBoxMenuItem(FDA_BROWSER_TITLE);
+            menuDataBrowser.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_MASK));
+            menuView.insert(menuDataBrowser, menuView.getMenuComponentCount() -1);
+            menuView.insertSeparator(menuView.getMenuComponentCount() -1);
+            menuDataBrowser.setSelected(false);
+            menuDataBrowser.addActionListener((e)-> {
+                if (isDataBrowserVisible()){
+                    closeDataBrowser();                
+                } else {
+                    showDataBrowser();
+                }
+            });
+            menuView.addChangeListener((e)->{
+                menuDataBrowser.setSelected(isDataBrowserVisible());
+            });
+
+            //TODO: On Mac, Java >10,  meta+B generates 2 events (with and without modifier)
+            //https://bugs.openjdk.java.net/browse/JDK-8208712
+            SwingUtils.adjustMacMenuBarAccelerator(menuDataBrowser);          
+            try {
+                if ((App.hasArgument("fda_browser")) ||
+                    ("true".equalsIgnoreCase(Context.getInstance().getSetting("FdaBrowser")))){
+                    showDataBrowser();
+                }
+            } catch (IOException ex) {            
             }
-        });
-        menuView.addChangeListener((e)->{
-            menuDataBrowser.setSelected(isDataBrowserVisible());
-        });
-        
-        //TODO: On Mac, Java >10,  meta+B generates 2 events (with and without modifier)
-        //https://bugs.openjdk.java.net/browse/JDK-8208712
-        SwingUtils.adjustMacMenuBarAccelerator(menuDataBrowser);          
-        try {
-            if ("true".equalsIgnoreCase(Context.getInstance().getSetting("FdaBrowser"))){
-                showDataBrowser();
-            }
-        } catch (IOException ex) {            
         }
     }
     
     public static boolean isDataBrowserVisible(){
-        JTabbedPane tab = App.getInstance().getMainFrame().getLeftTab();                
-        for (int i = 0; i < tab.getTabCount(); i++) {
-            Component c = tab.getComponentAt(i);
-            if (c instanceof DataBrowser) {
-                return true;
-            }
-        }     
+        if (App.getInstance().getMainFrame()!=null){
+            JTabbedPane tab = App.getInstance().getMainFrame().getLeftTab();                
+            for (int i = 0; i < tab.getTabCount(); i++) {
+                Component c = tab.getComponentAt(i);
+                if (c instanceof DataBrowser) {
+                    return true;
+                }
+            }     
+        }
         return false;
     }
     
     public static void showDataBrowser(){
-        JTabbedPane tab = App.getInstance().getMainFrame().getLeftTab();                
-        for (int i = 0; i < tab.getTabCount(); i++) {
-            Component c = tab.getComponentAt(i);
-            if (c instanceof DataBrowser) {
-                tab.setSelectedComponent(c);
-                return;
+        if (App.getInstance().getMainFrame()!=null){
+            JTabbedPane tab = App.getInstance().getMainFrame().getLeftTab();                
+            for (int i = 0; i < tab.getTabCount(); i++) {
+                Component c = tab.getComponentAt(i);
+                if (c instanceof DataBrowser) {
+                    tab.setSelectedComponent(c);
+                    return;
+                }
+            }      
+            DataBrowser panel = new DataBrowser();
+            panel.setCached(App.getInstance().getMainFrame().getPreferences().cachedDataPanel);
+            panel.initialize(null);        
+            App.getInstance().getMainFrame().openComponent(FDA_BROWSER_TITLE, panel, tab);   
+            if (!App.isLocalMode()) {
+                try {
+                    Context.getInstance().setSetting("FdaBrowser", true);
+                } catch (IOException ex) {            
+                }
             }
-        }      
-        DataBrowser panel = new DataBrowser();
-        panel.setCached(App.getInstance().getMainFrame().getPreferences().cachedDataPanel);
-        panel.initialize(null);        
-        App.getInstance().getMainFrame().openComponent(FDA_BROWSER_TITLE, panel, tab);   
-        if (!App.isLocalMode()) {
-            try {
-                Context.getInstance().setSetting("FdaBrowser", true);
-            } catch (IOException ex) {            
-            }
+            setDataBrowserFixed();
         }
-        setDataBrowserFixed();
     }
     
     static boolean isDataBrowser(Component c){
@@ -140,31 +148,35 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
     }
     
     public static void setDataBrowserFixed(){
-        if (App.getInstance().getMainFrame().getLeftTab().isVisible()){
-            for (int i = 0; i< App.getInstance().getMainFrame().getLeftTab().getTabCount(); i++){
-                Component t=App.getInstance().getMainFrame().getLeftTab().getTabComponentAt(i);
-                if (isDataBrowser(t)){
-                    CloseButtonTabComponent tab = (CloseButtonTabComponent)t;
-                    tab.getButton().setVisible(false);
-                    for (MouseListener l : tab.getLabel().getMouseListeners()){
-                        tab.getLabel().removeMouseListener(l);
-                    }                                            
+        if (App.getInstance().getMainFrame()!=null){
+            if (App.getInstance().getMainFrame().getLeftTab().isVisible()){
+                for (int i = 0; i< App.getInstance().getMainFrame().getLeftTab().getTabCount(); i++){
+                    Component t=App.getInstance().getMainFrame().getLeftTab().getTabComponentAt(i);
+                    if (isDataBrowser(t)){
+                        CloseButtonTabComponent tab = (CloseButtonTabComponent)t;
+                        tab.getButton().setVisible(false);
+                        for (MouseListener l : tab.getLabel().getMouseListeners()){
+                            tab.getLabel().removeMouseListener(l);
+                        }                                            
+                    }
                 }
             }
         }
     }
 
     public static void closeDataBrowser(){
-        if (!App.isLocalMode()) {
-            try {
-                Context.getInstance().setSetting("FdaBrowser", false);
-            } catch (IOException ex) {            
-            }      
-        }
-        for (int i = 0; i< App.getInstance().getMainFrame().getLeftTab().getTabCount(); i++){
-            Component t=App.getInstance().getMainFrame().getLeftTab().getTabComponentAt(i);
-            if (isDataBrowser(t)){
-                App.getInstance().getMainFrame().getLeftTab().removeTabAt(i);
+        if (App.getInstance().getMainFrame()!=null){
+            if (!App.isLocalMode()) {
+                try {
+                    Context.getInstance().setSetting("FdaBrowser", false);
+                } catch (IOException ex) {            
+                }      
+            }
+            for (int i = 0; i< App.getInstance().getMainFrame().getLeftTab().getTabCount(); i++){
+                Component t=App.getInstance().getMainFrame().getLeftTab().getTabComponentAt(i);
+                if (isDataBrowser(t)){
+                    App.getInstance().getMainFrame().getLeftTab().removeTabAt(i);
+                }
             }
         }
     }
