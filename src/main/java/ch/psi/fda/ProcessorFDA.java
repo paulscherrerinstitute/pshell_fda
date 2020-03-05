@@ -456,6 +456,11 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
         }
     }
 
+    @Override
+    public boolean isExecuting() {
+        return !isEnabled();
+    }     
+    
     public static void setProgress(int progress) {
         if (App.getInstance()!=null){
             Task task = App.getInstance().getRunningTask();
@@ -516,9 +521,9 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
     @Override
     public void abort() throws InterruptedException{
         doAbort();
-        if (App.getInstance() != null){
-            App.getInstance().abort();
-        }
+        //if (App.getInstance() != null){
+        //    App.getInstance().abort();
+        //}
     }
     
     @Override
@@ -609,7 +614,7 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
                 acquisition.destroy();
                 acquisition = null;
             }
-                        
+            Logger.getLogger(ProcessorFDA.class.getName()).log(Level.FINER, "Destroy channel service");          
             try {
                 channelService.destroy();
             } catch (Exception e) {

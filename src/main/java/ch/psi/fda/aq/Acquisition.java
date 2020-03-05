@@ -404,7 +404,7 @@ public class Acquisition {
 		if(logHandler!=null){
 			logger.fine("Close log handler");
 			logHandler.close();
-			Logger.getLogger("").removeHandler(logHandler);
+    			Logger.getLogger("").removeHandler(logHandler);
 		}
 	}
 
