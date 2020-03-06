@@ -66,6 +66,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * Loops can be executed from script as:    ProcessorFDA().execute("test1.xml")
@@ -292,7 +293,8 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
         //Creating new
         if (file==null){
             JFileChooser chooser = new JFileChooser(getHomePath());
-            chooser.addChoosableFileFilter(new ExtensionFileFilter(getDescription(), getExtensions()));
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(getDescription(), getExtensions());
+            chooser.setFileFilter(filter);
             chooser.setDialogTitle("Enter new file name");
             if (chooser.showSaveDialog(SwingUtils.getFrame(this)) != JFileChooser.APPROVE_OPTION) {
                 throw new RuntimeException("File name must be set");
