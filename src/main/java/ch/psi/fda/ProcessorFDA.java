@@ -36,12 +36,10 @@ import java.awt.Component;
 import ch.psi.pshell.ui.Processor;
 import ch.psi.pshell.ui.View;
 import ch.psi.utils.State;
-import ch.psi.utils.swing.ExtensionFileFilter;
 import ch.psi.utils.swing.SwingUtils.CloseButtonTabComponent;
 import ch.psi.utils.swing.SwingUtils.OptionType;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
-import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
@@ -521,8 +519,19 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
     }
 
     @Override
-    public void abort() throws InterruptedException{
-        doAbort();
+    public void abort() throws InterruptedException{        
+        if (acquisition != null) {
+            try {
+                acquisition.abort();
+            } catch (Exception e) {
+            }
+        }
+        
+        
+        //if (executionThread != null) {
+        //    executionThread.interrupt();
+        //}        
+        
         //if (App.getInstance() != null){
         //    App.getInstance().abort();
         //}
@@ -643,19 +652,7 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
             executionThread = null;
         }
     }
-
-    void doAbort() {
-        if (acquisition != null) {
-            try {
-                acquisition.abort();
-            } catch (Exception e) {
-            }
-        }
-        if (executionThread != null) {
-            executionThread.interrupt();
-        }
-    }
-
+    
     @Override
     public void plotDataFile(final File file) {
 
