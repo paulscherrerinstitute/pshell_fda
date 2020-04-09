@@ -53,7 +53,7 @@ public class ContinuousDetectorListItemProvider implements ListItemProvider<Dete
         if(dimension.getScaler().size()<16){
             keys.add(detectors[1]);
         }
-        if(dimension.getDetector().size()<8){
+        if(dimension.getDetector().size()<100){
             keys.add(detectors[0]);
         }
         return(keys.toArray(new String[keys.size()]));
