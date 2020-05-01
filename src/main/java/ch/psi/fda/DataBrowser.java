@@ -1,6 +1,8 @@
 package ch.psi.fda;
 
 import ch.psi.pshell.core.Context;
+import ch.psi.pshell.data.Converter;
+import ch.psi.pshell.data.DataManager;
 import ch.psi.pshell.swing.DataPanel;
 import ch.psi.pshell.ui.App;
 import ch.psi.utils.Arr;
@@ -90,6 +92,33 @@ public final class DataBrowser extends MonitoredPanel {
         });
         filePopupMenu.add(menuOpen);
 
+        JMenu menuConvert = new JMenu("Convert");
+        for (Converter converter : new Converter[]{new ConverterMat(), new ConverterMat2d()}){
+            JMenuItem item = new JMenuItem(converter.getName());                                        
+            item.addActionListener((a)->{    
+                try{
+                    File file = (File) treeFolder.getLastSelectedPathComponent();
+                    if ((file != null) && (file.exists()) && file.isFile()) {
+                        DataManager dataManager = new DataManager(Context.getInstance(), "fda", "fda");
+                        String output = file.getParent() + "/" +IO.getPrefix(file) + "_" + converter.getName().replaceAll("\\s+","") + "." + converter.getExtension();
+                        converter.startConvert(dataManager, file.getParent(), file.getName(), new File(output)).handle((ret,ex)->{
+                            if (ex != null){
+                                SwingUtils.showException(DataBrowser.this, (Exception) ex);
+                            } else{
+                                SwingUtils.showMessage(DataBrowser.this, "Success", "Success creating:\n" + String.valueOf(file));
+                            }
+                            return ret;
+                        });
+                    }
+                } catch (Exception ex) {
+                    SwingUtils.showException(DataBrowser.this, ex);
+                }                    
+            });
+            menuConvert.add(item);
+        }
+        
+        filePopupMenu.add(menuConvert);
+
         JMenuItem menuBrowse = new JMenuItem("Browse folder");
         menuBrowse.addActionListener((ActionEvent e) -> {
             try {
@@ -170,6 +199,7 @@ public final class DataBrowser extends MonitoredPanel {
                         if ((file != null) && (file.exists())) {
                             menuFileOrder.setVisible(path.getPathCount() == 1);
                             menuPlot.setVisible(file.isFile() && IO.getExtension(file).equalsIgnoreCase("txt"));
+                            menuConvert.setVisible(menuPlot.isVisible());
                             menuOpen.setVisible(file.isFile());
                             menuRefresh.setVisible(!file.isFile());
                             filePopupMenu.show(e.getComponent(), e.getX(), e.getY());

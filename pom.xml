@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ch.psi</groupId>
     <artifactId>FDA</artifactId>
-    <version>1.14.0</version>
+    <version>1.14.1</version>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -72,7 +72,12 @@
         <artifactId>jaxb-core</artifactId>
         <version>2.3.0</version>
     </dependency>
-
+    
+    <dependency>
+        <groupId>net.sourceforge.jmatio</groupId>
+        <artifactId>jmatio</artifactId>
+        <version>1.0</version>
+    </dependency>	
        
     </dependencies>   
           
