@@ -98,6 +98,7 @@ public final class DataBrowser extends MonitoredPanel {
             item.addActionListener((a)->{    
                 try{
                     File file = (File) treeFolder.getLastSelectedPathComponent();
+                    TreePath path = treeFolder.getSelectionPath();
                     if ((file != null) && (file.exists()) && file.isFile()) {
                         DataManager dataManager = new DataManager(Context.getInstance(), "fda", "fda");
                         String output = file.getParent() + "/" +IO.getPrefix(file) + "_" + converter.getName().replaceAll("\\s+","") + "." + converter.getExtension();
@@ -105,7 +106,11 @@ public final class DataBrowser extends MonitoredPanel {
                             if (ex != null){
                                 SwingUtils.showException(DataBrowser.this, (Exception) ex);
                             } else{
-                                SwingUtils.showMessage(DataBrowser.this, "Success", "Success creating:\n" + String.valueOf(file));
+                                try {
+                                    repaintTreePath(path.getParentPath(), true);
+                                } catch (Exception e) {
+                                }
+                                SwingUtils.showMessage(DataBrowser.this, "Success", "Success creating:\n" + String.valueOf(output));                                
                             }
                             return ret;
                         });
@@ -251,6 +256,7 @@ public final class DataBrowser extends MonitoredPanel {
             String filename = file.getCanonicalPath();
             switch (IO.getExtension(file)) {
                 case "log":
+                case "mat":
                     Editor editor = App.getInstance().getMainFrame().openTextFile(filename);
                     editor.setReadOnly(true);
                     break;
@@ -521,7 +527,7 @@ public final class DataBrowser extends MonitoredPanel {
                         ret.add(subfolder);
                     }
                 }
-                File[] files = IO.listFiles(f, new String[]{"xml", "txt", "log"});
+                File[] files = IO.listFiles(f, new String[]{"xml", "txt", "log", "mat"});
                 //File[] files = IO.listFiles(f, "*.txt");
 
                 switch (fileOrder) {

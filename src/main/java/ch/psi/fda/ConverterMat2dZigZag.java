@@ -53,7 +53,7 @@ public class ConverterMat2dZigZag implements Converter {
 
         int last = -1;
         int maxdim = 0;
-        for (int i : dims) {
+        for (int i =0; i< dims.length; i++){     
             if (dims[i] > maxdim) {
                 maxdim = dims[i];
             }

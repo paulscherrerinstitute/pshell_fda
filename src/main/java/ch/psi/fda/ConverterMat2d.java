@@ -45,7 +45,7 @@ public class ConverterMat2d implements Converter {
         int last = -1;
         int maxdim=0;
         if (dims!=null){
-            for (int i : dims){            
+            for (int i =0; i< dims.length; i++){            
                 if (dims[i]>maxdim){
                     maxdim = dims[i];
                 }                
