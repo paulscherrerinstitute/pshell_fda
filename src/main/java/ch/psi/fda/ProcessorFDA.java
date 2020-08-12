@@ -17,6 +17,7 @@ import ch.psi.fda.ui.visualizer.Visualizer;
 import ch.psi.fda.vdescriptor.VDescriptor;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.impl.DefaultChannelService;
+import ch.psi.pshell.core.CommandInfo;
 import ch.psi.pshell.core.CommandSource;
 import ch.psi.pshell.core.Context;
 import ch.psi.pshell.plot.PlotBase;
@@ -423,7 +424,7 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
 
         @Override
         protected String doInBackground() throws Exception {
-            Context.getInstance().startExecution(CommandSource.ui, file, null, true);
+            CommandInfo info = Context.getInstance().startExecution(CommandSource.ui, file, null, true);
             String msg = "Running " + getFileName();
             try {
                 setEnabled(false);
@@ -446,7 +447,7 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
                 throw ex;
             } finally {
                 App.getInstance().sendTaskFinish(msg);
-                Context.getInstance().endExecution();
+                Context.getInstance().endExecution(info);
                 setEnabled(true);
             }
         }
@@ -557,8 +558,9 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
         open(file);
         
         State initialState = Context.getInstance().getState();
+        CommandInfo info = null;
         if (initialState == State.Ready){
-            Context.getInstance().startExecution(CommandSource.terminal, file, null, false);
+            info = Context.getInstance().startExecution(CommandSource.terminal, file, null, false);
         }
         String msg = "Running " + getFileName();
         try {
@@ -568,7 +570,7 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
             throw ex;
         } finally {         
             if (initialState == State.Ready){
-                Context.getInstance().endExecution();
+                Context.getInstance().endExecution(info);
             }
         }        
     }    

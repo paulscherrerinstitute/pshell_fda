@@ -26,7 +26,7 @@ public class Cdump {
     private String dataChannel = "CDUMP:WAVE";
     private String controlChannel = "CDUMP:CONTROL";
     private String samplingRateChannel = "CDUMP:SAMPLING";
-    private int nelements = 65536;            
+    private int nelements = 65536;     
         
     public String getDataChannel() {
             return dataChannel;
@@ -89,7 +89,7 @@ public class Cdump {
         Logger.getLogger(Cdump.class.getName()).log(Level.INFO, "Start acquisition");
 
         File f = new File(Context.getInstance().getSetup().expandPath(getFileName())+ ".txt");
-        f.getParentFile().mkdirs(); // Create data base directory
+        Context.getInstance().getExecutionPars().setDataPath(f.getParentFile()); //Create base dir and trigger callbacks
 		
 	// Create execution service
 	EventBus eventbus = new AsyncEventBus(Executors.newSingleThreadExecutor());
@@ -108,6 +108,7 @@ public class Cdump {
             Logger.getLogger(Cdump.class.getName()).log(Level.INFO, "Stop acquisition");
             service.stop();
         }
+        Context.getInstance().getExecutionPars().setDataPath(null);
     }
 
 }

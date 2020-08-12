@@ -93,8 +93,8 @@ public class Fdaq {
                 }
                 catch (Exception ex){
                     Logger.getLogger(Fdaq.class.getName()).log(Level.WARNING,null,ex);
+                    }
                 }
-            }
         }).start();	
     }
     
@@ -109,40 +109,43 @@ public class Fdaq {
 	fdaqService = new ch.psi.fda.fdaq.Fdaq(bus, configuration);                
         
         File f = new File(Context.getInstance().getSetup().expandPath(getFileName()) + ".txt");
-        f.getParentFile().mkdirs(); // Create data base directory
-        
-        SerializerTXT serializer = new SerializerTXT(f, false);
-	serializer.setShowDimensionHeader(false);
-	bus.register(serializer);
-		
-	// This stop ensures that the data server is in a good shape (i.e. gets restarted)
-	// We need to wait a certain amount of time to have the server restarted.
-	fdaqService.stop();
-	try {
-		Thread.sleep(1000); // TODO check whether this sleep is really necessary
-	} catch (InterruptedException e) {
-		e.printStackTrace();
-	}
-        
-        Logger.getLogger(Fdaq.class.getName()).log(Level.INFO, "Start fdaq acquisition");
+        Context.getInstance().getExecutionPars().setDataPath(f.getParentFile()); //Create base dir and trigger callbacks
+        try{
+            SerializerTXT serializer = new SerializerTXT(f, false);
+            serializer.setShowDimensionHeader(false);
+            bus.register(serializer);
 
-        if (showPlot) {
-            VDescriptor vd = new VDescriptor();				
-                //LinePlot lineplot = new LinePlot();
-            for (String plot: new String[]{"ain1","ain2","ain3","ain4","enc1"}){
-                LinePlot lineplot = new LinePlot(plot);
-                XYSeries series = new XYSeries("counter", plot);
-                series.setMaxItemCount(itemCount);
-                lineplot.getData().add(series);            
-                vd.getPlots().add(lineplot);
-            }            
-            Visualizer visualizer = new Visualizer(vd);            
-            visualizer.setSubsampling(subsamplingFactor);
-            bus.register(visualizer);
-            ProcessorFDA.setPlots(visualizer.getPlotPanels(), null);            
+            // This stop ensures that the data server is in a good shape (i.e. gets restarted)
+            // We need to wait a certain amount of time to have the server restarted.
+            fdaqService.stop();
+            try {
+                    Thread.sleep(1000); // TODO check whether this sleep is really necessary
+            } catch (InterruptedException e) {
+                    e.printStackTrace();
+            }
+
+            Logger.getLogger(Fdaq.class.getName()).log(Level.INFO, "Start fdaq acquisition");
+
+            if (showPlot) {
+                VDescriptor vd = new VDescriptor();				
+                    //LinePlot lineplot = new LinePlot();
+                for (String plot: new String[]{"ain1","ain2","ain3","ain4","enc1"}){
+                    LinePlot lineplot = new LinePlot(plot);
+                    XYSeries series = new XYSeries("counter", plot);
+                    series.setMaxItemCount(itemCount);
+                    lineplot.getData().add(series);            
+                    vd.getPlots().add(lineplot);
+                }            
+                Visualizer visualizer = new Visualizer(vd);            
+                visualizer.setSubsampling(subsamplingFactor);
+                bus.register(visualizer);
+                ProcessorFDA.setPlots(visualizer.getPlotPanels(), null);            
+            }
+
+           fdaqService.acquire();
+        } finally {
+            Context.getInstance().getExecutionPars().setDataPath(null);
         }
-
-       fdaqService.acquire();
     }
 
     public void stopAcquisition() {

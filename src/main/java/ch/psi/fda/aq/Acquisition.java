@@ -113,6 +113,7 @@ import ch.psi.jcae.util.ComparatorAND;
 import ch.psi.jcae.util.ComparatorOR;
 import ch.psi.jcae.util.ComparatorREGEX;
 import ch.psi.pshell.core.Context;
+import ch.psi.pshell.core.ExecutionParameters;
 import ch.psi.pshell.core.Setup;
 import ch.psi.utils.Str;
 import java.lang.reflect.Array;
@@ -160,6 +161,8 @@ public class Acquisition {
 		this.manipulations = new ArrayList<Manipulation>();
                 this.vars = vars;
 	}
+        
+        ExecutionParameters executionParameters = null;
 	
 	
 	
@@ -216,8 +219,9 @@ public class Acquisition {
                 datafile = new File(fprefix+".txt");
                 
 		// Create required directories
-		xmlfile.getParentFile().mkdirs();
-		
+                executionParameters = Context.getInstance().getExecutionPars();
+                executionParameters.setDataPath(xmlfile.getParentFile()); //Create base dir and trigger callbacks
+                		
 		try{
 			// Workaround - to avoid that multiple handlers get attached
 			// this should be removed when rewriting the acquisition logic
@@ -399,6 +403,8 @@ public class Acquisition {
 		
 		// Clear global variables Jython
 		jVariableDictionary.clear();
+                
+                executionParameters.setDataPath(null);
 		
 		// Remove log handler
 		if(logHandler!=null){
