@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ch.psi</groupId>
     <artifactId>FDA</artifactId>
-    <version>1.15.0</version>
+    <version>1.16.0</version>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pshell</artifactId>
-            <version>1.15.0</version>
+            <version>1.16.0</version>
         </dependency>              
         <dependency>
             <groupId>com.google.guava</groupId>

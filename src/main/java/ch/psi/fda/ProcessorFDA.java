@@ -324,10 +324,16 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
 
     @Override
     public void save() throws IOException {
-        File copy = null;
-
+        File copy = null;        
         try {
             if (this.file != null) {
+                if (!file.canWrite()){
+                    if (!hasChanged()){
+                        return;
+                    } else {
+                        throw new IOException(file.getName() + " is read-only"); 
+                    }
+                }
                 copy = new File(file.getAbsolutePath() + ".tmp");
                 IO.copy(file.getAbsolutePath(), copy.getAbsolutePath());
             }
