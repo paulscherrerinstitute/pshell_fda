@@ -248,6 +248,9 @@ public class Acquisition {
 		// Save a copy of the model to the data directory
 		try {
 			ModelManager.marshall(smodel, xmlfile);
+                        if (Context.getInstance()!=null){
+                            Context.getInstance().addDetachedFileToSession(xmlfile);
+                        }
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to serialize scan",e);
 		}		

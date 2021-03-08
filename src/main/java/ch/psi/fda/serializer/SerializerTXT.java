@@ -33,6 +33,7 @@ import ch.psi.fda.messages.EndOfStreamMessage;
 import ch.psi.fda.messages.Message;
 import ch.psi.fda.messages.Metadata;
 import ch.psi.fda.messages.StreamDelimiterMessage;
+import ch.psi.pshell.core.Context;
 
 /**
  * Serialize data received by a DataQueue
@@ -131,6 +132,9 @@ public class SerializerTXT {
 					}
 
 					newfile = false;
+                                         if (Context.getInstance()!=null){
+                                             Context.getInstance().addDetachedFileToSession(outfile);
+                                         }
 				}
 
 				// Write message to file - each message will result in one line
