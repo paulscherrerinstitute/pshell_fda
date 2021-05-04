@@ -419,7 +419,12 @@ public class Acquisition {
 
 	public void abort(){
             if(actionLoop != null){
-		actionLoop.abort();
+                try{
+                    actionLoop.abort();
+                }
+                catch (Exception ex){
+                    Logger.getLogger(ActorSensorLoop.class.getName()).log(Level.WARNING,null,ex);
+                }                         		
             }
 	}
 	

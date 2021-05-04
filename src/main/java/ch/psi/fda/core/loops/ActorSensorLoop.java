@@ -38,6 +38,7 @@ import ch.psi.fda.core.Sensor;
 import ch.psi.fda.messages.DataMessage;
 import ch.psi.fda.messages.EndOfStreamMessage;
 import ch.psi.fda.messages.Metadata;
+import java.util.logging.Level;
 
 /**
  * Loop of actions to accomplish a task or test.
@@ -349,12 +350,22 @@ public class ActorSensorLoop implements ActionLoop {
 		
 		// To abort all wait actions interrupt this thread
 		for(Action a: preSensorActions){
-			a.abort();
+                    try{
+                        a.abort();
+                    }
+                    catch (Exception ex){
+                        Logger.getLogger(ActorSensorLoop.class.getName()).log(Level.WARNING,null,ex);
+                    }                    			
 		}
 		
 		// Recursively abort all registered action loops
-		for(ActionLoop actionLoop: actionLoops){
-			actionLoop.abort();
+		for(ActionLoop actionLoop: actionLoops){			
+                        try{
+                            actionLoop.abort();
+                        }
+                        catch (Exception ex){
+                            Logger.getLogger(ActorSensorLoop.class.getName()).log(Level.WARNING,null,ex);
+                        }                                            
 		}
 	}
 

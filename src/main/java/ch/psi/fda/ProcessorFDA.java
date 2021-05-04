@@ -531,6 +531,7 @@ public final class ProcessorFDA extends MonitoredPanel implements Processor {
             try {
                 acquisition.abort();
             } catch (Exception e) {
+                Logger.getLogger(ProcessorFDA.class.getName()).log(Level.WARNING,null,e);
             }
         }
         

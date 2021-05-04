@@ -5,6 +5,8 @@ import com.google.common.eventbus.EventBus;
 import ch.psi.fda.EContainer;
 import ch.psi.fda.model.v1.Configuration;
 import ch.psi.jcae.ChannelService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class XScanContainer implements EContainer {
 
@@ -35,7 +37,11 @@ public class XScanContainer implements EContainer {
 
 	@Override
 	public void abort() {
-		acquisition.abort();
+            try {
+                acquisition.abort();
+            } catch (Exception e) {
+                Logger.getLogger(XScanContainer.class.getName()).log(Level.WARNING,null,e);
+            }            	
 	}
 
 	@Override

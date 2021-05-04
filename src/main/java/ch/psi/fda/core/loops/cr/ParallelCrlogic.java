@@ -123,12 +123,15 @@ public class ParallelCrlogic implements ActionLoop {
 				b.await();
 				
 				// Execute the logic of this path
-				crlogic.execute();
-	
-//				crlogic.cleanup();
-				
-				// Need to stop the scrlogic logic (otherwise it would keep going to take data)
-				scrlogic.abort();
+                                try{
+                                    crlogic.execute();
+                                } finally {
+
+    //				crlogic.cleanup();
+
+                                    // Need to stop the scrlogic logic (otherwise it would keep going to take data)
+                                    scrlogic.abort();
+                                }
 				return true;
 			}});
 		list.add(f);

@@ -20,7 +20,11 @@
 package ch.psi.fda.core.loops.cr;
 
 import ch.psi.jcae.Channel;
+import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.pshell.epics.Epics;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class TemplateCrlogic {
 
@@ -111,4 +115,12 @@ public class TemplateCrlogic {
 		return readoutResources;
 	}
 	
+        public void waitStatus(TemplateCrlogic.Status status, long timeout) throws InterruptedException, ExecutionException, ChannelException, TimeoutException{
+            //getStatus().waitForValue(status.toString(), timeout);    
+            Epics.waitValue(getStatus(), status.toString(), (int) timeout); //Extra check in the end of temporization
+        }      
+        
+        public void setStatus(TemplateCrlogic.Status status) throws InterruptedException, ExecutionException, ChannelException{
+            getStatus().setValue(status.toString());
+        }
 }
