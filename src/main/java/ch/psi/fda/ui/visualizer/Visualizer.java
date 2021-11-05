@@ -36,11 +36,9 @@ import ch.psi.pshell.plot.MatrixPlotSeries;
 import ch.psi.pshell.plot.Plot;
 import ch.psi.pshell.ui.App;
 import ch.psi.pshell.ui.Preferences;
-import ch.psi.pshell.ui.View;
 import com.google.common.eventbus.Subscribe;
 import java.awt.Font;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -86,11 +84,11 @@ public class Visualizer {
 		
                 try{
                     for(ch.psi.fda.vdescriptor.Plot vplot: vdescriptor.getPlots()){
-                            if(vplot instanceof ch.psi.fda.vdescriptor.LinePlot){
+                            if(vplot instanceof ch.psi.fda.vdescriptor.LinePlot){                                                                
                                     ch.psi.fda.vdescriptor.LinePlot lp = (ch.psi.fda.vdescriptor.LinePlot) vplot;
 
                                     // Create plot for visualization
-                                    LinePlot plot = (LinePlot) Plot.newPlot(linePlotImpl);
+                                    LinePlot plot = (LinePlot) Plot.newPlot(linePlotImpl);                                    
                                     plot.setTitle(lp.getTitle());
                                     plot.getAxis(Plot.AxisId.X).setLabel(null);
                                     plot.getAxis(Plot.AxisId.Y).setLabel(null);
@@ -204,7 +202,7 @@ public class Visualizer {
 					
 					if(xyfilter.getSeries()==null || xyfilter.isNewseries()){
 						// First series that is filled by this filter!
-						LinePlotSeries s = new LinePlotSeries(xyfilter.getSeriesName() + " " + ecount + "-" + xyfilter.getCount());                                                
+						LinePlotSeries s = new LinePlotSeries(xyfilter.getSeriesName() + " " + ecount + "-" + xyfilter.getCount());                                                                                                
                                                 if (xyfilter.getMaxNumberOfPoints()>=0)
                                                     s.setMaxItemCount(xyfilter.getMaxNumberOfPoints());
 						((LinePlot)xyfilter.getPlot()).addSeries(s);
@@ -212,7 +210,7 @@ public class Visualizer {
 						xyfilter.setNewseries(false);
 					}
 					
-					LinePlotSeries series = xyfilter.getSeries(); // TODO Does not work with multiple series filter per plot !!!!
+					LinePlotSeries series = xyfilter.getSeries(); // TODO Does not work with multiple series filter per plot !!!!					
 					
 					// There might be other values than double in the data, therefore we have to check for it
 					Object dX = message.getData(xyfilter.getIdX());
@@ -241,7 +239,7 @@ public class Visualizer {
 							// If we can agree only to display one series at a time also a clear() on the actual series is better
                                                         ((LinePlot)xyfilter.getPlot()).addSeries(series);
                                                         xyfilter.setSeries(series);
-							
+                                                        
 							// Remove outdated series
 							if(((LinePlot)xyfilter.getPlot()).getNumberOfSeries()>xyfilter.getMaxSeries()){
 								// Remove oldest series
@@ -302,11 +300,13 @@ public class Visualizer {
 				}
 			}
                 if (updateAtStreamElement){
-                for (Plot plot: plots){
-                    plot.update(true);
+                    for (Plot plot: plots){
+                        if (plot instanceof MatrixPlot){
+                            plot.update(true);
+                        }
+                    }
                 }
-                }
-	}
+            }
 	
         Double getDoubleValue(Object value){
             if(value instanceof Double){
@@ -348,7 +348,9 @@ public class Visualizer {
 			// Update matrix plot at the end of each line
 			if(updateAtStreamDelimiter){
                             for (Plot plot:getPlots()) {
-                                    plot.update(true);
+                                    if (plot instanceof MatrixPlot){
+                                        plot.update(true);
+                                    }
 				}
 			}
 
@@ -366,11 +368,13 @@ public class Visualizer {
 		ecount++;
 		
 		// Update plots if updateAtEndOfStream flag is set
-		if(updateAtEndOfStream){
+		if(updateAtEndOfStream){                    
 			// Update matrix plots
                         for (Plot plot:getPlots()) {
+                            if (plot instanceof MatrixPlot){
                                 plot.update(true);
-                            }
+                            } 
+                        }
 		}
 	}
 	
