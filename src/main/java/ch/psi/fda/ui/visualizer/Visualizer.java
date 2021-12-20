@@ -301,9 +301,7 @@ public class Visualizer {
 			}
                 if (updateAtStreamElement){
                     for (Plot plot: plots){
-                        if (plot instanceof MatrixPlot){
-                            plot.update(true);
-                        }
+                        plot.update(true);
                     }
                 }
             }
@@ -348,9 +346,7 @@ public class Visualizer {
 			// Update matrix plot at the end of each line
 			if(updateAtStreamDelimiter){
                             for (Plot plot:getPlots()) {
-                                    if (plot instanceof MatrixPlot){
-                                        plot.update(true);
-                                    }
+                                plot.update(true);
 				}
 			}
 
@@ -371,9 +367,7 @@ public class Visualizer {
 		if(updateAtEndOfStream){                    
 			// Update matrix plots
                         for (Plot plot:getPlots()) {
-                            if (plot instanceof MatrixPlot){
-                                plot.update(true);
-                            } 
+                            plot.update(true);
                         }
 		}
 	}
